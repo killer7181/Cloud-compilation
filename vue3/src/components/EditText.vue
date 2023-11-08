@@ -1,11 +1,11 @@
 <script>
 export default {
-name: "edit"
+  name: "EditText"
 }
 </script>
 
 <template>
-  $END$
+<p>样品编译</p>
 </template>
 
 <style scoped>

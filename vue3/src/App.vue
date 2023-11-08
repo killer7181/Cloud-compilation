@@ -1,15 +1,14 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+<!--  <HelloWorld msg="Welcome to Your Vue.js App"/>-->
+  <EditText/>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+import EditText from "@/components/EditText.vue"
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    EditText
   }
 }
 </script>
