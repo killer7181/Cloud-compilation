@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gec.system.mapper.UserMapper">
+    <update id="UpdateAgeByIds">
+
+        UPDATE User SET age = age-#{amount} ${ew.customSqlSegment}
+    </update>
+    <update id="UpdateIdBuname"></update>
+</mapper>
