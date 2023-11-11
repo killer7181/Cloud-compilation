@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.*;
 import java.io.*;
+import java.util.concurrent.CountDownLatch;
 
 @CrossOrigin(origins = "http://localhost:8081")
 @RequestMapping("/make")
@@ -18,41 +20,54 @@ public class MakeSoftware {
     @PostMapping("/software")
     public Form make(@RequestBody Form from) {
         System.out.println(from);
-        String host = "192.168.3.163";
-        String user = "user_w_location_TV";
-        String password = "dx88404355tv";
+        String host1 = "192.168.3.163";
+        String user1 = "user_w_location_TV";
+        String password1= "dx88404355tv";
         int port = 22;
+        String host2 = "192.168.3.165";
+        String user2 = "eng_lzj";
+        String password2= "dx88404355lzj";
 
         JSch jsch = new JSch();
-        Session session = null;
+
+        Session session1 = null;
+        Session session2 = null;
         try {
-            session = jsch.getSession(user, host, port);
-            session.setPassword(password);
-            session.setConfig("StrictHostKeyChecking", "no");
-            session.connect();
-
-            ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
-
-            // 读取文件内容
-            BufferedReader reader ;
+            session1 = jsch.getSession(user1, host1, port);
+            session1.setPassword(password1);
+            session1.setConfig("StrictHostKeyChecking", "no");
+            session1.connect();
+            session2 = jsch.getSession(user2, host2, port);
+            session2.setPassword(password2);
+            session2.setConfig("StrictHostKeyChecking", "no");
+            session2.connect();
+            ChannelSftp channelSftp1 = (ChannelSftp) session1.openChannel("sftp");
+            ChannelSftp channelSftp2 = (ChannelSftp) session2.openChannel("sftp");
+            channelSftp1.connect();
+            channelSftp2.connect();
+            CountDownLatch latch = new CountDownLatch(1);
             // 写入文件内容
-            channelSftp.put(new ByteArrayInputStream(generateJson(from).getBytes()), "/local/user_w_location_TV/lm/software.json");
-            String command = "/local/user_w_location_TV/lm/update.sh";
-            ChannelExec channel = (ChannelExec) session.openChannel("exec");
+            channelSftp2.put(new ByteArrayInputStream(generateJson(from).getBytes()), "/data1/lm/HISI_AN12/other/software.json");
+            // 执行后面的代码
+            String command = "cd /data1/lm/HISI_AN12/other && /bin/bash /data1/lm/HISI_AN12/other/update.sh";
+            ChannelExec channel = (ChannelExec) session2.openChannel("exec");
             channel.setCommand(command);
             channel.connect();
-
             // 读取输出
             InputStream in = channel.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(in));
+            BufferedReader reader  = new BufferedReader(new InputStreamReader(in));
             String l;
             while ((l = reader.readLine()) != null) {
                 System.out.println(l);
             }
-            channelSftp.disconnect();
-            session.disconnect();
+            session2.disconnect();
             channel.disconnect();
+            latch.countDown();
+            channelSftp1.disconnect();
+            session1.disconnect();
+            session2.disconnect();
+            channelSftp2.disconnect();
+
         } catch (JSchException | SftpException e) {
             e.printStackTrace();
         } catch (IOException e) {
